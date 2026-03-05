@@ -20,6 +20,9 @@ todo-back/
 │   │       ├── development.py  # Local dev (SQLite, DEBUG=True)
 │   │       └── production.py   # Production (PostgreSQL, WhiteNoise, HTTPS)
 │   ├── categories/         # Categories app
+│   │   └── management/
+│   │       └── commands/
+│   │           └── seed_categories.py  # Seed default categories
 │   └── tasks/              # Tasks app
 ├── requirements.txt
 └── .env.example
@@ -154,6 +157,14 @@ Copy `.env.example` to `.env` and fill in the values. Never commit `.env` to ver
 gunicorn todo.core.wsgi:application
 ```
 
+### Build Command (Render)
+
+```bash
+pip install -r requirements.txt && python manage.py collectstatic --no-input && python manage.py migrate && python manage.py seed_categories
+```
+
+`seed_categories` uses `get_or_create` — idempotent, safe to run on every deploy. Creates default categories (Hooman, Work, Food) if they don't exist.
+
 ### First deploy checklist
 
 ```bash
@@ -162,4 +173,7 @@ python manage.py collectstatic --noinput
 
 # Apply migrations
 python manage.py migrate
+
+# Seed default categories
+python manage.py seed_categories
 ```
