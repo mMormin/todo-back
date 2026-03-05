@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from categories.models import Category
+from todo.categories.models import Category
 
 DEFAULT_CATEGORIES = [
     {'name': 'Hooman', 'icon': '👤'},
