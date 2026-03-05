@@ -1,6 +1,5 @@
 from rest_framework import serializers
 from .models import Task
-from todo.categories.models import Category
 
 
 class TaskSerializer(serializers.ModelSerializer):
@@ -24,7 +23,7 @@ class TaskSerializer(serializers.ModelSerializer):
         model = Task
         fields = [
             'id',
-            'description',
+            'title',
             'is_completed',
             'category',
             'category_name',
@@ -33,26 +32,26 @@ class TaskSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['id', 'created_at', 'updated_at']
 
-    def validate_description(self, value):
+    def validate_title(self, value):
         """
-        Validate that the task description is not empty.
+        Validate that the task title is not empty.
 
         Args:
-            value (str): The task description to validate.
+            value (str): The task title to validate.
 
         Returns:
-            str: The validated task description.
+            str: The validated task title.
 
         Raises:
-            serializers.ValidationError: If the description is empty or whitespace only.
+            serializers.ValidationError: If the title is empty or whitespace only.
         """
         if not value or not value.strip():
-            raise serializers.ValidationError("La description de la tâche ne peut pas être vide.")
+            raise serializers.ValidationError("The task title cannot be empty.")
         return value.strip()
 
     def validate_category(self, value):
         """
-        Validate that the category exists.
+        Validate that the category is provided.
 
         Args:
             value (Category): The category instance to validate.
@@ -61,12 +60,8 @@ class TaskSerializer(serializers.ModelSerializer):
             Category: The validated category instance.
 
         Raises:
-            serializers.ValidationError: If the category does not exist.
+            serializers.ValidationError: If no category is provided.
         """
         if not value:
-            raise serializers.ValidationError("La catégorie est obligatoire.")
-        
-        if not Category.objects.filter(id=value.id).exists():
-            raise serializers.ValidationError("La catégorie spécifiée n'existe pas.")
-        
+            raise serializers.ValidationError("A category is required.")
         return value

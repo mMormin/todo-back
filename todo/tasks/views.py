@@ -23,7 +23,7 @@ class TaskListCreateView(generics.ListCreateAPIView):
     ### Example
         GET /api/tasks/
         GET /api/tasks/?category_id=1
-        POST /api/tasks/ with body: {"description": "Task", "category": 1}
+        POST /api/tasks/ with body: {"title": "Task", "category": 1}
     """
 
     queryset = Task.objects.all()
@@ -51,7 +51,7 @@ class TaskListCreateView(generics.ListCreateAPIView):
 
         Returns:
             201: Task created successfully.
-            400: Validation error (e.g., empty description, invalid category).
+            400: Validation error (e.g., empty title, invalid category).
         """
         serializer = self.get_serializer(data=request.data)
         

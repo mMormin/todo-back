@@ -4,17 +4,17 @@ from todo.categories.models import Category
 
 class Task(models.Model):
     """
-    Represents a task 
+    Represents a task
 
     Attributes:
-        description (str): The description of the task (non-empty).
+        title (str): The title of the task (non-empty).
         is_completed (bool): Whether the task is completed (default: False).
         category (ForeignKey): The category this task belongs to.
         created_at (datetime): Timestamp when the task was created.
         updated_at (datetime): Timestamp when the task was last updated.
     """
 
-    description = models.TextField()
+    title = models.CharField(max_length=50)
     is_completed = models.BooleanField(default=False)
     category = models.ForeignKey(
         Category,
@@ -28,4 +28,4 @@ class Task(models.Model):
         ordering = ['-created_at']
 
     def __str__(self):
-        return self.description[:50] + ('...' if len(self.description) > 50 else '')
+        return self.title[:50] + ('...' if len(self.title) > 50 else '')
