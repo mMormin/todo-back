@@ -7,11 +7,13 @@ class Category(models.Model):
 
     Attributes:
         name (str): The name of the category (unique, non-empty).
+        icon (str): An emoji character used as the category icon.
         created_at (datetime): Timestamp when the category was created.
         updated_at (datetime): Timestamp when the category was last updated.
     """
 
-    name = models.CharField(max_length=100, unique=True)
+    name = models.CharField(max_length=50, unique=True)
+    icon = models.CharField(max_length=10, default='📁')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

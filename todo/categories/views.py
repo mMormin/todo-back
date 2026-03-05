@@ -16,7 +16,7 @@ class CategoryListCreateView(generics.ListCreateAPIView):
 
     ### Example
         GET /api/categories/
-        POST /api/categories/ with body: {"name": "Work"}
+        POST /api/categories/ with body: {"name": "Work", "icon": "💼"}
     """
 
     queryset = Category.objects.all()

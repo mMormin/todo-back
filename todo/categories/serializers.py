@@ -21,7 +21,7 @@ class CategorySerializer(serializers.ModelSerializer):
             read_only_fields (list): Fields that cannot be modified through the API.
         """
         model = Category
-        fields = ['id', 'name', 'created_at', 'updated_at']
+        fields = ['id', 'name', 'icon', 'created_at', 'updated_at']
         read_only_fields = ['id', 'created_at', 'updated_at']
 
     def validate_name(self, value):
@@ -38,5 +38,5 @@ class CategorySerializer(serializers.ModelSerializer):
             serializers.ValidationError: If the name is empty or whitespace only.
         """
         if not value or not value.strip():
-            raise serializers.ValidationError("Le nom de la catégorie ne peut pas être vide.")
+            raise serializers.ValidationError("The category name cannot be empty.")
         return value.strip()
