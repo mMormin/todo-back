@@ -15,10 +15,7 @@ def trigger_error(request):
 
 urlpatterns = [
     path('health/', health_check, name='health_check'),
-    *(
-        [path('error/', trigger_error, name='trigger_error')]
-        if settings.DEBUG else []
-    ),
+    path('sentry-debug/', trigger_error, name='trigger_error'),
     path('admin/', admin.site.urls),
     path('api/', include('todo.categories.urls')),
     path('api/', include('todo.tasks.urls')),
