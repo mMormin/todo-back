@@ -81,22 +81,22 @@ API available at `http://localhost:8000`.
 
 ### Health
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/health/` | Health check for PaaS platforms |
-| GET | `/error/` | Trigger a test error (Sentry verification) |
+| Method | Endpoint   | Description                                |
+| ------ | ---------- | ------------------------------------------ |
+| GET    | `/health/` | Health check for PaaS platforms            |
+| GET    | `/error/`  | Trigger a test error (Sentry verification) |
 
 ---
 
 ### Categories
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/categories/` | List all categories |
-| POST | `/api/categories/` | Create a category |
-| GET | `/api/categories/<id>/` | Retrieve a category |
-| PATCH | `/api/categories/<id>/` | Update a category |
-| DELETE | `/api/categories/<id>/` | Delete a category |
+| Method | Endpoint                | Description         |
+| ------ | ----------------------- | ------------------- |
+| GET    | `/api/categories/`      | List all categories |
+| POST   | `/api/categories/`      | Create a category   |
+| GET    | `/api/categories/<id>/` | Retrieve a category |
+| PATCH  | `/api/categories/<id>/` | Update a category   |
+| DELETE | `/api/categories/<id>/` | Delete a category   |
 
 **POST example:**
 
@@ -110,13 +110,13 @@ API available at `http://localhost:8000`.
 
 ### Tasks
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/tasks/` | List all tasks |
-| POST | `/api/tasks/` | Create a task |
-| GET | `/api/tasks/<id>/` | Retrieve a task |
-| PATCH | `/api/tasks/<id>/` | Update a task |
-| DELETE | `/api/tasks/<id>/` | Delete a task |
+| Method | Endpoint           | Description     |
+| ------ | ------------------ | --------------- |
+| GET    | `/api/tasks/`      | List all tasks  |
+| POST   | `/api/tasks/`      | Create a task   |
+| GET    | `/api/tasks/<id>/` | Retrieve a task |
+| PATCH  | `/api/tasks/<id>/` | Update a task   |
+| DELETE | `/api/tasks/<id>/` | Delete a task   |
 
 **POST example:**
 
@@ -137,24 +137,24 @@ API available at `http://localhost:8000`.
 
 The project uses a split settings structure. The default is `development`. In production, override via environment variable.
 
-| File | Used when |
-|------|-----------|
+| File                             | Used when                   |
+| -------------------------------- | --------------------------- |
 | `todo.core.settings.development` | Local development (default) |
-| `todo.core.settings.production` | Production |
+| `todo.core.settings.production`  | Production                  |
 
 ### Required environment variables (production)
 
-| Variable | Description |
-|----------|-------------|
-| `DJANGO_SETTINGS_MODULE` | `todo.core.settings.production` |
-| `SECRET_KEY` | Django secret key — generate a new one |
-| `DATABASE_URL` | PostgreSQL URL: `postgres://user:pass@host:5432/db` |
-| `ALLOWED_HOSTS` | Comma-separated list of allowed domains |
-| `CORS_ALLOWED_ORIGINS` | Comma-separated list of allowed frontend origins |
-| `DJANGO_SUPERUSER_USERNAME` | Admin username (created on first deploy) |
-| `DJANGO_SUPERUSER_EMAIL` | Admin email (optional) |
-| `DJANGO_SUPERUSER_PASSWORD` | Admin password (created on first deploy) |
-| `SENTRY_DSN` | Sentry DSN for error tracking (optional) |
+| Variable                    | Description                                         |
+| --------------------------- | --------------------------------------------------- |
+| `DJANGO_SETTINGS_MODULE`    | `todo.core.settings.production`                     |
+| `SECRET_KEY`                | Django secret key — generate a new one              |
+| `DATABASE_URL`              | PostgreSQL URL: `postgres://user:pass@host:5432/db` |
+| `ALLOWED_HOSTS`             | Comma-separated list of allowed domains             |
+| `CORS_ALLOWED_ORIGINS`      | Comma-separated list of allowed frontend origins    |
+| `DJANGO_SUPERUSER_USERNAME` | Admin username (created on first deploy)            |
+| `DJANGO_SUPERUSER_EMAIL`    | Admin email (optional)                              |
+| `DJANGO_SUPERUSER_PASSWORD` | Admin password (created on first deploy)            |
+| `SENTRY_DSN`                | Sentry DSN for error tracking (optional)            |
 
 Copy `.env.example` to `.env` and fill in the values. Never commit `.env` to version control.
 
@@ -162,7 +162,13 @@ Copy `.env.example` to `.env` and fill in the values. Never commit `.env` to ver
 
 ```bash
 gunicorn todo.core.wsgi:application
+or
+gunicorn todo.core.wsgi:application --bind 0.0.0.0:$PORT
 ```
+
+> Render specification :  
+> `$PORT` is injected by Render at runtime.  
+> Without `--bind 0.0.0.0:$PORT`, gunicorn defaults is `127.0.0.1:8000` and the platform cannot reach it.
 
 ### Build Command (Render)
 
@@ -171,6 +177,7 @@ gunicorn todo.core.wsgi:application
 ```
 
 `build.sh` runs in order:
+
 1. `pip install -r requirements.txt`
 2. `python manage.py migrate`
 3. `python manage.py collectstatic --no-input`
