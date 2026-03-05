@@ -15,15 +15,19 @@ Django REST API for a todo application with categories and tasks management.
 todo-back/
 ├── todo/
 │   ├── core/               # Django project (settings, urls, wsgi)
-│   │   └── settings/
-│   │       ├── base.py         # Common settings
-│   │       ├── development.py  # Local dev (SQLite, DEBUG=True)
-│   │       └── production.py   # Production (PostgreSQL, WhiteNoise, HTTPS)
+│   │   ├── settings/
+│   │   │   ├── base.py         # Common settings
+│   │   │   ├── development.py  # Local dev (SQLite, DEBUG=True)
+│   │   │   └── production.py   # Production (PostgreSQL, WhiteNoise, HTTPS)
+│   │   └── management/
+│   │       └── commands/
+│   │           └── create_superuser.py  # Create superuser from env vars
 │   ├── categories/         # Categories app
 │   │   └── management/
 │   │       └── commands/
 │   │           └── seed_categories.py  # Seed default categories
 │   └── tasks/              # Tasks app
+├── build.sh            # Render build script
 ├── requirements.txt
 └── .env.example
 ```
@@ -147,6 +151,9 @@ The project uses a split settings structure. The default is `development`. In pr
 | `DATABASE_URL` | PostgreSQL URL: `postgres://user:pass@host:5432/db` |
 | `ALLOWED_HOSTS` | Comma-separated list of allowed domains |
 | `CORS_ALLOWED_ORIGINS` | Comma-separated list of allowed frontend origins |
+| `DJANGO_SUPERUSER_USERNAME` | Admin username (created on first deploy) |
+| `DJANGO_SUPERUSER_EMAIL` | Admin email (optional) |
+| `DJANGO_SUPERUSER_PASSWORD` | Admin password (created on first deploy) |
 | `SENTRY_DSN` | Sentry DSN for error tracking (optional) |
 
 Copy `.env.example` to `.env` and fill in the values. Never commit `.env` to version control.
@@ -160,20 +167,14 @@ gunicorn todo.core.wsgi:application
 ### Build Command (Render)
 
 ```bash
-pip install -r requirements.txt && python manage.py collectstatic --no-input && python manage.py migrate && python manage.py seed_categories
+./build.sh
 ```
 
-`seed_categories` uses `get_or_create` — idempotent, safe to run on every deploy. Creates default categories (Hooman, Work, Food) if they don't exist.
+`build.sh` runs in order:
+1. `pip install -r requirements.txt`
+2. `python manage.py migrate`
+3. `python manage.py collectstatic --no-input`
+4. `python manage.py create_superuser` — creates admin from env vars, skipped if already exists
+5. `python manage.py seed_categories` — creates default categories, skipped if already exist
 
-### First deploy checklist
-
-```bash
-# Collect static files
-python manage.py collectstatic --noinput
-
-# Apply migrations
-python manage.py migrate
-
-# Seed default categories
-python manage.py seed_categories
-```
+All steps are idempotent — safe to run on every deploy.
