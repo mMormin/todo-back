@@ -13,6 +13,9 @@ Django REST API for a todo application with categories and tasks management.
 
 ```
 todo-back/
+├── .github/
+│   └── workflows/
+│       └── ci.yml          # CI pipeline (pytest on push/PR)
 ├── todo/
 │   ├── core/               # Django project (settings, urls, wsgi)
 │   │   ├── settings/
@@ -27,7 +30,9 @@ todo-back/
 │   │       └── commands/
 │   │           └── seed_categories.py  # Seed default categories
 │   └── tasks/              # Tasks app
+│       └── tests.py        # Model + API tests
 ├── build.sh            # Render build script
+├── pytest.ini
 ├── requirements.txt
 └── .env.example
 ```
@@ -81,10 +86,9 @@ API available at `http://localhost:8000`.
 
 ### Health
 
-| Method | Endpoint   | Description                                |
-| ------ | ---------- | ------------------------------------------ |
-| GET    | `/health/` | Health check for PaaS platforms            |
-| GET    | `/error/`  | Trigger a test error (Sentry verification) |
+| Method | Endpoint   | Description                     |
+| ------ | ---------- | ------------------------------- |
+| GET    | `/health/` | Health check for PaaS platforms |
 
 ---
 
@@ -123,10 +127,78 @@ API available at `http://localhost:8000`.
 ```json
 {
   "title": "Buy groceries",
-  "description": "Milk, eggs, bread",
   "category": 1,
-  "completed": false
+  "is_completed": false
 }
+```
+
+---
+
+## Testing
+
+Tests use **pytest** with `pytest-django` and `pytest-xdist` (parallel execution).
+
+### Run all tests
+
+```bash
+pytest
+```
+
+### Run by marker
+
+```bash
+pytest -m model   # model-layer tests only
+pytest -m api     # API endpoint tests only
+```
+
+### Configuration ([pytest.ini](pytest.ini))
+
+| Option | Value |
+| ------ | ----- |
+| `DJANGO_SETTINGS_MODULE` | `todo.core.settings.development` |
+| `-n auto` | runs tests in parallel across all CPU cores |
+
+### Test files
+
+| File | Coverage |
+| ---- | -------- |
+| `todo/tasks/tests.py` | Task model + Tasks API endpoints |
+
+### What is tested
+
+**Model (`@pytest.mark.model`)**
+
+- New task defaults to `is_completed = False`
+- Setting `is_completed = True` persists after `save()` / `refresh_from_db()`
+- Empty title raises `ValidationError` via `full_clean()`
+- `__str__` returns title as-is (≤ 50 chars) or truncates with `…` (> 50)
+- `created_at` and `updated_at` are auto-populated on creation
+- Deleting a category cascades to its tasks
+
+**API (`@pytest.mark.api`)**
+
+- `POST /api/tasks/` creates a task and returns 201
+- Empty title on POST or PATCH returns 400 with a `title` error
+- `GET /api/tasks/` returns all tasks
+- `DELETE /api/tasks/<id>/` returns 204 and removes the task
+- `GET /api/tasks/<id>/` returns 200 with correct data
+- `GET /api/tasks/99999/` returns 404
+- `PATCH /api/tasks/<id>/` marks a task as completed
+- `PUT /api/tasks/<id>/` updates the title
+- `?category_id=X` filters tasks by category
+- Response includes `category_name` as a read-only field
+- Leading/trailing whitespace in `title` is stripped on create
+
+---
+
+## CI
+
+GitHub Actions runs the test suite automatically on every push and pull request.
+
+Workflow: [`.github/workflows/ci.yml`](.github/workflows/ci.yml)
+
+```
+push / pull_request → install dependencies → pytest
 ```
 
 ---
